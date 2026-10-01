@@ -277,9 +277,18 @@ git push origin --tags
 
 ```powershell
 git status                          # 不应该出现 Library/ Temp/ Logs/ UserSettings/
-git check-ignore -v Library         # 应输出 .gitignore 中命中的规则
 git lfs ls-files                    # 应列出你的 png/wav 等素材
 git config --global --get merge.unityyamlmerge.driver   # 应有输出
+
+# 检查忽略规则是否真的生效（注意 --no-index，见第七节坑 5）
+git check-ignore --no-index -v "Library/"
+git check-ignore --no-index -v "UserSettings/"
+```
+
+也可以一条命令跑完检查，仓库里的 `Tools/setup-git.ps1` 已经内置了这套自检：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools\setup-git.ps1
 ```
 
 `git ls-files | Measure-Object -Line` 看一下仓库追踪了多少文件——**正常的 Unity 项目应该在几百个以内**。如果是几千个，八成是 `Library/` 被提交了。
@@ -289,4 +298,106 @@ git config --global --get merge.unityyamlmerge.driver   # 应有输出
 ```powershell
 git rm -r --cached Library        # 从索引里移除，但保留本地文件
 git commit -m "chore: 移除误提交的 Library 目录"
+```
+
+---
+
+## 七、五个真实踩坑记录
+
+下面这些都是**配置本项目时实际踩到并修复的**坑。它们的共同点是：**报错信息完全指向不了真正的原因**，所以特别值得记住。
+
+### 坑 1：`.gitignore` 不支持行尾注释 ⭐ 最坑
+
+```gitignore
+# ❌ 错误写法
+/[Ll]ibrary/          # 资源导入缓存
+```
+
+这行**完全不会生效**。Git 会把整行当成要匹配的字面量 `Library/          # 资源导入缓存`，永远匹配不到任何文件。
+
+**`#` 只有在行首才是注释。** 正确写法：
+
+```gitignore
+# ✅ 正确写法：说明单独占一行
+# 资源导入缓存
+/[Ll]ibrary/
+```
+
+**为什么这个坑特别危险**：`git status` 看起来一切正常（`Library/` 还没生成时什么都不显示），等你发现时 `Library/` 已经被提交了几百 MB 进去。
+
+**怎么发现**：用 `git check-ignore` 逐个验证，别靠肉眼看。
+
+### 坑 2：PowerShell 脚本在 PS 5.1 下需要 UTF-8 BOM
+
+Windows PowerShell 5.1 读取 `.ps1` 文件时，**如果文件没有 BOM，会按系统 ANSI 编码（中文系统上是 GBK）解码**。结果就是脚本里的中文全变乱码，而且乱码字节会破坏字符串引号配对，报出一堆莫名其妙的语法错误：
+
+```
+The '<' operator is reserved for future use.
+The string is missing the terminator: '.
+Unexpected token '鏈厤缃?' in expression or statement.
+```
+
+**解决办法**：把 `.ps1` 存成 **UTF-8 with BOM**。
+
+```powershell
+$p = 'Tools\setup-git.ps1'
+$text = [System.IO.File]::ReadAllText($p)
+[System.IO.File]::WriteAllText($p, $text, (New-Object System.Text.UTF8Encoding($true)))  # $true = 带 BOM
+```
+
+或者干脆用 PowerShell 7（`pwsh`）运行，它默认按 UTF-8 读取，没有这个问题。
+
+> 📌 本仓库的 `Tools/setup-git.ps1` **必须保留 BOM**，用编辑器改完记得确认没被去掉。
+
+### 坑 3：`.NET` 方法用的是「进程工作目录」，不是 PowerShell 的位置
+
+```powershell
+Set-Location 'D:\Roguelike2D'
+[System.IO.File]::ReadAllText('ProjectSettings\EditorSettings.asset')   # ❌ 报「找不到路径」
+Select-String -Path 'ProjectSettings\EditorSettings.asset'              # ✅ 正常
+```
+
+PowerShell 的 cmdlet（`Select-String`、`Get-Content`）跟随 `Set-Location`，但 `.NET` 静态方法跟随的是**进程启动时的工作目录**（`[Environment]::CurrentDirectory`）。
+
+**解决办法**：给 `.NET` 方法传**绝对路径**。
+
+```powershell
+$root = 'D:\Roguelike2D'
+[System.IO.File]::ReadAllText((Join-Path $root 'ProjectSettings\EditorSettings.asset'))   # ✅
+```
+
+### 坑 4：Unity 的 YAML 文件不能带 BOM
+
+`ProjectSettings/*.asset`、`.unity`、`.prefab`、`.meta` 都是 Unity 的 YAML 文件，**必须无 BOM**。用 PowerShell 改这些文件时要注意：
+
+```powershell
+# ❌ 某些环境下 Set-Content -Encoding UTF8 会写入 BOM
+(Get-Content $f -Raw) -replace 'a','b' | Set-Content $f -NoNewline -Encoding UTF8
+
+# ✅ 显式指定「无 BOM」
+$noBom = New-Object System.Text.UTF8Encoding($false)   # $false = 不带 BOM
+[System.IO.File]::WriteAllText($f, $content, $noBom)
+```
+
+**怎么检查**：
+
+```powershell
+$b = [System.IO.File]::ReadAllBytes('ProjectSettings\ProjectSettings.asset')
+$b[0..2] -join ','      # 应该是 37,89,65（即 "%YA"）
+                        # 如果是 239,187,191，就是混进了 BOM
+```
+
+### 坑 5：`git check-ignore` 检查目录要加 `--no-index`
+
+```powershell
+git check-ignore -v Library        # ❌ Library 还不存在时，可能匹配不到目录规则
+git check-ignore --no-index -v "Library/"   # ✅ 不查索引，纯按规则匹配
+```
+
+`.gitignore` 里 `/[Ll]ibrary/` 结尾的斜杠表示**只匹配目录**。如果这个目录在磁盘上还不存在，也不加 `--no-index`，Git 无法判断它是目录，就会报告「未被忽略」——**这是误报，规则其实是对的**。
+
+**最可靠的验证方式**是直接看 Git 会不会真的收录这个文件：
+
+```powershell
+git status --ignored --short | Select-String 'Library'
 ```
