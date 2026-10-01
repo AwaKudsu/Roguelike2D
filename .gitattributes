@@ -1,0 +1,71 @@
+# ============================================================
+#  Unity 项目专用 .gitattributes
+#
+#  这个文件解决 Unity + Git 最痛的两个问题：
+#    1) 场景 / 预制体是 YAML 文本，直接合并会产生「语法正确但语义损坏」的文件，
+#       打开后场景全白或引用丢失 —— 交给 Unity 官方的 SmartMerge 处理
+#    2) 图片 / 音频 / 模型是二进制，每次改动 Git 都存一份完整副本，
+#       仓库会迅速膨胀 —— 交给 Git LFS 处理
+#
+#  下面「二进制大文件」一节由 `git lfs track` 自动维护，手改容易写错。
+# ============================================================
+# 默认由 Git 自动判断文本 / 二进制
+* text=auto
+# ---------- Unity 的 YAML 资产：交给 SmartMerge ----------
+# 注意：这些文件必须保持文本形式，所以 eol=lf 固定换行符，
+#       避免 Windows 上整文件 diff（看起来改了几千行，实际只改了一个数字）
+*.unity               merge=unityyamlmerge eol=lf
+*.prefab              merge=unityyamlmerge eol=lf
+*.asset               merge=unityyamlmerge eol=lf
+*.meta                merge=unityyamlmerge eol=lf
+*.controller          merge=unityyamlmerge eol=lf
+*.overrideController  merge=unityyamlmerge eol=lf
+*.mat                 merge=unityyamlmerge eol=lf
+*.anim                merge=unityyamlmerge eol=lf
+*.physicMaterial2D    merge=unityyamlmerge eol=lf
+*.physicsMaterial2D   merge=unityyamlmerge eol=lf
+# ---------- 代码：统一按 C# 做 diff，方便 code review ----------
+*.cs       text diff=csharp
+*.shader   text diff=csharp
+*.hlsl     text
+*.cginc    text
+*.compute  text
+*.asmdef   text
+*.json     text eol=lf
+*.md       text eol=lf
+# ---------- Windows 批处理 / PowerShell ----------
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+# ============================================================
+#  二进制大文件 —— Git LFS
+#  （由 Tools\setup-git.ps1 里的 `git lfs track` 追加维护）
+# ============================================================
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.tif filter=lfs diff=lfs merge=lfs -text
+*.tiff filter=lfs diff=lfs merge=lfs -text
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
+*.hdr filter=lfs diff=lfs merge=lfs -text
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.ogg filter=lfs diff=lfs merge=lfs -text
+*.aiff filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.max filter=lfs diff=lfs merge=lfs -text
+*.ma filter=lfs diff=lfs merge=lfs -text
+*.mb filter=lfs diff=lfs merge=lfs -text
+*.ttf filter=lfs diff=lfs merge=lfs -text
+*.otf filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+*.cubemap filter=lfs diff=lfs merge=lfs -text
+*.unitypackage filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,91 @@
+# Unity 项目专用 .gitignore
+#
+# 作用：把「Unity 自动生成、每台机器上都一样」的目录排除在版本控制之外。
+# 官方来源：https://github.com/github/gitignore/blob/main/Unity.gitignore
+#
+# ⚠️ 重要：.gitignore 不支持「行尾注释」！
+#    下面这种写法是错的，会导致规则完全失效：
+#        /Library/     # 缓存目录
+#    它会被当成要匹配 "Library/     # 缓存目录" 这个字面量，永远匹配不到。
+#    # 号只有出现在行首才是注释，所有说明必须单独占一行。
+
+# ---------- Unity 自动生成的目录（绝对不要提交）----------
+
+# 资源导入缓存。动辄几 GB，包含本机绝对路径，且可完整重建
+/.utmp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+
+# 打包输出。要发布 Release 就把 zip 传到 GitHub Releases，别塞进仓库
+/[Bb]uild/
+/[Bb]uilds/
+
+# 日志与内存/录制缓存
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# 只属于你本机的窗口布局、上次打开的场景
+/[Uu]ser[Ss]ettings/
+
+# ---------- 关键例外：.meta 文件必须提交 ----------
+# 只有「对应资源本身被忽略」时，它的 .meta 才应该被忽略。
+# .meta 丢了 Unity 会重新生成新 GUID，所有引用会全部断裂。
+!/[Aa]ssets/**/*.meta
+
+# 如果不用 Unity 的 Asset Store 插件，取消下一行注释
+# /[Aa]ssets/AssetStoreTools*
+
+# Rider 自动生成的插件
+/[Aa]ssets/Plugins/Editor/JetBrains*
+
+# ---------- IDE / 编辑器 ----------
+.vs/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity 生成的调试符号
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# 崩溃报告
+sysinfo.txt
+
+# ---------- 打包产物 ----------
+*.apk
+*.aab
+*.app
+
+# Crashlytics
+crashlytics-build.properties
+
+# Packed Addressables
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# 自动生成的 Android 资源
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# ---------- 项目自定义 ----------
+
+# 本地日志与崩溃转储
+*.log
+crash-*.txt
