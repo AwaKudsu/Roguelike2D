@@ -7,24 +7,57 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerInputReader : MonoBehaviour
 {
-    // Input Actions 资产勾选 Generate C# Class 后自动生成的类
     private PlayerInputActions _actions;
 
     /// <summary>水平/垂直输入方向，范围 -1 ~ 1</summary>
     public Vector2 Move { get; private set; }
+
+    // 「按下」「松开」是瞬时事件，而 Update 和 FixedUpdate 的频率不同步，
+    // 直接读 WasPressedThisFrame 可能被 FixedUpdate 整个错过。
+    // 所以先锁存下来，等逻辑层主动「取走」—— 保证一次按键不多不少被处理一次。
+    private bool _jumpPressedLatch;
+    private bool _jumpReleasedLatch;
 
     private void Awake()
     {
         _actions = new PlayerInputActions();
     }
 
-    // 跟随 GameObject 的启用状态开关输入，避免对象销毁后仍在读输入
-    private void OnEnable()  => _actions.Player.Enable();
-    private void OnDisable() => _actions.Player.Disable();
+    private void OnEnable()
+    {
+        _actions.Player.Enable();
+        _actions.Player.Jump.performed += OnJumpPerformed;
+        _actions.Player.Jump.canceled  += OnJumpCanceled;
+    }
+
+    private void OnDisable()
+    {
+        _actions.Player.Jump.performed -= OnJumpPerformed;
+        _actions.Player.Jump.canceled  -= OnJumpCanceled;
+        _actions.Player.Disable();
+    }
 
     private void Update()
     {
-        // 每帧读一次当前方向。按住 A 就是 (-1, 0)，松开就是 (0, 0)
         Move = _actions.Player.Move.ReadValue<Vector2>();
     }
+
+    /// <summary>取走「按下了跳跃」事件。取过一次就没了。</summary>
+    public bool ConsumeJumpPressed()
+    {
+        if (!_jumpPressedLatch) return false;
+        _jumpPressedLatch = false;
+        return true;
+    }
+
+    /// <summary>取走「松开了跳跃」事件。取过一次就没了。</summary>
+    public bool ConsumeJumpReleased()
+    {
+        if (!_jumpReleasedLatch) return false;
+        _jumpReleasedLatch = false;
+        return true;
+    }
+
+    private void OnJumpPerformed(InputAction.CallbackContext _) => _jumpPressedLatch  = true;
+    private void OnJumpCanceled (InputAction.CallbackContext _) => _jumpReleasedLatch = true;
 }

@@ -662,6 +662,17 @@ MonoBehaviour:
   maxSpeed: 8
   acceleration: 60
   deceleration: 80
+  jumpForce: 13
+  riseGravityScale: 3.5
+  fallGravityScale: 6
+  jumpCutMultiplier: 0.45
+  maxFallSpeed: 25
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  groundCheckRadius: 0.05
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &1728500176
 MonoBehaviour:
   m_ObjectHideFlags: 0
