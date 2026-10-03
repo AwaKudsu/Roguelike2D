@@ -2,6 +2,9 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家移动与跳跃逻辑。
+///
+/// 注：受击硬直期间会主动放弃操作权，但重力和下落限制仍然生效 ——
+/// 这样被击退时角色会自然地被打飞、落地，而不是僵在半空。
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(PlayerInputReader))]
@@ -9,8 +12,10 @@ public class PlayerController : MonoBehaviour
 {
     [Header("移动")]
     [SerializeField] private float maxSpeed = 8f;
+
     [Tooltip("按下方向键时的加速度")]
     [SerializeField] private float acceleration = 60f;
+
     [Tooltip("松开方向键时的减速度")]
     [SerializeField] private float deceleration = 80f;
 
@@ -39,8 +44,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpBufferTime = 0.1f;
 
     [Header("地面检测")]
-    [Tooltip("检测圆的半径")]
-    [SerializeField] private float groundCheckRadius = 0.15f;
+    [Tooltip("检测圆的半径。太大会导致「还没落地就算落地」，与跳跃缓冲叠加会表现为空中起跳")]
+    [SerializeField] private float groundCheckRadius = 0.05f;
 
     [Tooltip("⚠️ 必须选 Ground 层，留空会导致永远检测不到地面")]
     [SerializeField] private LayerMask groundLayer;
@@ -48,6 +53,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D _rb;
     private Collider2D _col;
     private PlayerInputReader _input;
+    private HitReaction _hitReaction;
 
     private float _coyoteCounter;      // 土狼时间剩余
     private float _jumpBufferCounter;  // 跳跃缓冲剩余
@@ -57,18 +63,34 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        _rb    = GetComponent<Rigidbody2D>();
-        _col   = GetComponent<Collider2D>();
-        _input = GetComponent<PlayerInputReader>();
+        _rb          = GetComponent<Rigidbody2D>();
+        _col         = GetComponent<Collider2D>();
+        _input       = GetComponent<PlayerInputReader>();
+        _hitReaction = GetComponent<HitReaction>();
     }
 
     private void FixedUpdate()
     {
         // 顺序有讲究：先知道站没站在地上，才能算土狼时间和能不能起跳
         CheckGround();
-        UpdateJumpTimers();
-        TryJump();
-        ApplyHorizontalMovement();
+
+        bool canAct = _hitReaction == null || !_hitReaction.IsStunned;
+
+        if (canAct)
+        {
+            UpdateJumpTimers();
+            TryJump();
+            ApplyHorizontalMovement();
+        }
+        else
+        {
+            // 硬直期间清空输入与计时器，避免硬直结束后「补跳」一下
+            _input.ConsumeJumpPressed();
+            _coyoteCounter     = 0f;
+            _jumpBufferCounter = 0f;
+        }
+
+        // 重力和下落限制在硬直期间照常生效，否则被打飞的角色会僵在半空
         ApplyGravityAndJumpCut();
         ClampFallSpeed();
     }
