@@ -54,6 +54,7 @@ public class PlayerController : MonoBehaviour
     private Collider2D _col;
     private PlayerInputReader _input;
     private HitReaction _hitReaction;
+    private CharacterStats _stats;
 
     private float _coyoteCounter;      // 土狼时间剩余
     private float _jumpBufferCounter;  // 跳跃缓冲剩余
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour
         _col         = GetComponent<Collider2D>();
         _input       = GetComponent<PlayerInputReader>();
         _hitReaction = GetComponent<HitReaction>();
+        _stats = GetComponent<CharacterStats>();
     }
 
     private void FixedUpdate()
@@ -135,10 +137,12 @@ public class PlayerController : MonoBehaviour
     }
 
     // ---------------- 水平移动 ----------------
+    /// <summary>实际最大速度：优先读属性系统（职业差异走这里），没组件就用手填值</summary>
+    private float MaxSpeed => _stats != null ? _stats.Get(StatType.MoveSpeed) : maxSpeed;
 
     private void ApplyHorizontalMovement()
     {
-        float targetSpeed = _input.Move.x * maxSpeed;
+        float targetSpeed = _input.Move.x * MaxSpeed; 
         float rate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
 
         float newSpeedX = Mathf.MoveTowards(
