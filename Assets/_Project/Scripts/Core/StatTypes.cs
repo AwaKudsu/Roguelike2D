@@ -14,6 +14,8 @@ public enum StatType
     CritMultiplier,   // 暴击伤害倍率，1.5 = 150%
     Defense,          // 防御（按比例减伤）
     CooldownRate,     // 冷却缩减，0.2 = 冷却减少 20%
+    MaxMana,          // 最大法力
+    ManaRegen,        // 每秒回蓝
 }
 
 /// <summary>

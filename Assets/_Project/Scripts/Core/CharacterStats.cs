@@ -23,6 +23,8 @@ public class CharacterStats : MonoBehaviour
     [SerializeField] private float baseCritMultiplier = 1.5f;
     [SerializeField] private float baseDefense        = 0f;
     [SerializeField] private float baseCooldownRate   = 0f;
+    [SerializeField] private float baseMaxMana        = 100f;
+    [SerializeField] private float baseManaRegen      = 6f;
 
     [Header("联动")]
     [Tooltip("留空则自动找同物体上的 Health，把最大生命同步过去")]
@@ -33,6 +35,13 @@ public class CharacterStats : MonoBehaviour
 
     /// <summary>属性变化时触发（穿脱装备、强化生效）。血条和 UI 订阅它刷新</summary>
     public event System.Action Changed;
+
+    /// <summary>
+    /// 换职业时触发。技能栏、外观、UI 订阅它重新装配自己。
+    /// 它和 Changed 分开是有意的：Changed 每捡一件装备都会响，
+    /// 而「重新装配技能栏」不需要这么频繁。
+    /// </summary>
+    public event System.Action<ClassData> ClassChanged;
 
     /// <summary>当前使用的职业数据，只有玩家才有</summary>
     public ClassData Class => classData;
@@ -134,6 +143,7 @@ public class CharacterStats : MonoBehaviour
         // 换职业时，旧职业的装备 / 技能加成必须全部清掉，否则会叠加串味
         ClearModifiers();
         Changed?.Invoke();
+        ClassChanged?.Invoke(data);
     }
 
     private void ApplyClassData(ClassData data)
@@ -146,6 +156,8 @@ public class CharacterStats : MonoBehaviour
         _baseValues[StatType.CritMultiplier] = data.critMultiplier;
         _baseValues[StatType.Defense]        = data.defense;
         _baseValues[StatType.CooldownRate]   = data.cooldownRate;
+        _baseValues[StatType.MaxMana]        = data.maxMana;
+        _baseValues[StatType.ManaRegen]      = data.manaRegen;
     }
 
     private void WriteFallbackBaseValues()
@@ -158,6 +170,8 @@ public class CharacterStats : MonoBehaviour
         _baseValues[StatType.CritMultiplier] = baseCritMultiplier;
         _baseValues[StatType.Defense]        = baseDefense;
         _baseValues[StatType.CooldownRate]   = baseCooldownRate;
+        _baseValues[StatType.MaxMana]        = baseMaxMana;
+        _baseValues[StatType.ManaRegen]      = baseManaRegen;
     }
 
     /// <summary>把最终最大生命同步给 Health 组件</summary>

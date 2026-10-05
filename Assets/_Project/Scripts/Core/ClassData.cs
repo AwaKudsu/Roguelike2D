@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -36,6 +37,16 @@ public class ClassData : ScriptableObject
     [Range(0f, 0.8f)]
     public float cooldownRate   = 0f;
 
-    [Header("初始配置（技能系统上线后启用）")]
+    [Header("法力")]
+    [Tooltip("最大法力。法师靠它放技能，战士也有 —— 只是数字不一样")]
+    public float maxMana        = 100f;
+
+    [Tooltip("每秒回蓝。消耗后会有短暂延迟才开始回，见 ManaPool")]
+    public float manaRegen      = 6f;
+
+    [Header("初始配置")]
     public AttackData basicAttack;
+
+    [Tooltip("开局就带的技能，按顺序对应 K / L / U / I 四个键")]
+    public List<SkillData> startingSkills = new();
 }

@@ -21,6 +21,12 @@ public class PlayerInputReader : MonoBehaviour
     private bool _attackPressedLatch;
     private bool _dashPressedLatch;
 
+    /// <summary>技能槽数量，和 SkillCaster.MaxSlots 保持一致</summary>
+    public const int SkillSlotCount = 4;
+
+    // 每个技能键一个锁存位：0 = K，1 = L，2 = U，3 = I
+    private readonly bool[] _skillPressedLatch = new bool[SkillSlotCount];
+
     private void Awake()
     {
         _actions = new PlayerInputActions();
@@ -34,6 +40,11 @@ public class PlayerInputReader : MonoBehaviour
         _actions.Player.Jump.canceled    += OnJumpCanceled;
         _actions.Player.Attack.performed += OnAttackPerformed;
         _actions.Player.Dash.performed   += OnDashPerformed;
+
+        _actions.Player.Skill1.performed += OnSkill1Performed;
+        _actions.Player.Skill2.performed += OnSkill2Performed;
+        _actions.Player.Skill3.performed += OnSkill3Performed;
+        _actions.Player.Skill4.performed += OnSkill4Performed;
     }
 
     private void OnDisable()
@@ -42,6 +53,11 @@ public class PlayerInputReader : MonoBehaviour
         _actions.Player.Jump.canceled    -= OnJumpCanceled;
         _actions.Player.Attack.performed -= OnAttackPerformed;
         _actions.Player.Dash.performed   -= OnDashPerformed;
+
+        _actions.Player.Skill1.performed -= OnSkill1Performed;
+        _actions.Player.Skill2.performed -= OnSkill2Performed;
+        _actions.Player.Skill3.performed -= OnSkill3Performed;
+        _actions.Player.Skill4.performed -= OnSkill4Performed;
 
         _actions.Player.Disable();
     }
@@ -86,10 +102,25 @@ public class PlayerInputReader : MonoBehaviour
         return true;
     }
 
+    /// <summary>取走「按下了第 slot 个技能键」事件（0 = K，1 = L，2 = U，3 = I）</summary>
+    public bool ConsumeSkillPressed(int slot)
+    {
+        if (slot < 0 || slot >= SkillSlotCount) return false;
+        if (!_skillPressedLatch[slot]) return false;
+
+        _skillPressedLatch[slot] = false;
+        return true;
+    }
+
     // ---------------- 回调 ----------------
 
     private void OnJumpPerformed  (InputAction.CallbackContext _) => _jumpPressedLatch  = true;
     private void OnJumpCanceled   (InputAction.CallbackContext _) => _jumpReleasedLatch = true;
     private void OnAttackPerformed(InputAction.CallbackContext _) => _attackPressedLatch = true;
     private void OnDashPerformed  (InputAction.CallbackContext _) => _dashPressedLatch   = true;
+
+    private void OnSkill1Performed(InputAction.CallbackContext _) => _skillPressedLatch[0] = true;
+    private void OnSkill2Performed(InputAction.CallbackContext _) => _skillPressedLatch[1] = true;
+    private void OnSkill3Performed(InputAction.CallbackContext _) => _skillPressedLatch[2] = true;
+    private void OnSkill4Performed(InputAction.CallbackContext _) => _skillPressedLatch[3] = true;
 }

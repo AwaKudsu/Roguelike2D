@@ -23,4 +23,8 @@ MonoBehaviour:
   critMultiplier: 1.8
   defense: 0
   cooldownRate: 0
-  basicAttack: {fileID: 11400000, guid: 81665de188428a647a82c3ac324505a3, type: 2}
+  maxMana: 100
+  manaRegen: 5
+  basicAttack: {fileID: 11400000, guid: a91ae24e2c5412c429b0267716cecf23, type: 2}
+  startingSkills:
+  - {fileID: 11400000, guid: c50dfeb7efb7fab4aa27034685325512, type: 2}

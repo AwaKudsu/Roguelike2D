@@ -26,13 +26,27 @@ public class AttackData : ScriptableObject
     public float bonusCritChance = 0f;
 
     [Header("判定范围")]
-    [Tooltip("判定框相对角色的偏移，x 会被朝向翻转")]
-    public Vector2 hitboxOffset = new Vector2(0.8f, 0f);
+    [Tooltip("判定框相对角色的偏移，x 会被朝向翻转。\n" +
+             "(0,0) = 以角色为中心，身前身后都打得到（旋风斩这类原地 AoE）。\n" +
+             "填正数 = 判定框挪到身前（普通挥砍）。")]
+    // 默认值刻意用「居中」而不是「身前」：
+    // 忘了改偏移时，居中会让攻击**打到太多**（一眼能看出不对），
+    // 而身前会让 AoE **打不到身后**——攻击照样能命中，于是错误永远不暴露。
+    // 宁可错得明显，也不要错得安静。
+    public Vector2 hitboxOffset = Vector2.zero;
 
+    [Tooltip("判定框的宽和高（世界单位）。改完按 Play 打一下，看 Scene 视图里亮青色的框")]
     public Vector2 hitboxSize = new Vector2(1.2f, 0.9f);
 
     [Tooltip("能打到的层。⚠️ 必须设成 Enemy，留空会永远打不到人")]
     public LayerMask targetLayers;
+
+    [Header("远程")]
+    [Tooltip("勾上就从「身前的判定框」变成「发射投射物」。法师的法杖弹靠它")]
+    public bool isRanged = false;
+
+    [Tooltip("Is Ranged 勾上时必填：要发射的投射物预制体")]
+    public GameObject projectilePrefab;
 
     [Header("节奏")]
     [Tooltip("两次攻击之间的最短间隔")]

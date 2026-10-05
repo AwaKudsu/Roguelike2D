@@ -522,6 +522,7 @@ GameObject:
   - component: {fileID: 698469660}
   - component: {fileID: 698469659}
   - component: {fileID: 698469658}
+  - component: {fileID: 698469661}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -624,7 +625,7 @@ Transform:
   m_GameObject: {fileID: 698469652}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.15279, y: -2.80176, z: 0}
+  m_LocalPosition: {x: 7.58, y: -1.92, z: 0}
   m_LocalScale: {x: 0.9, y: 1.1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -651,6 +652,8 @@ MonoBehaviour:
   baseCritMultiplier: 1.5
   baseDefense: 0
   baseCooldownRate: 0
+  baseMaxMana: 100
+  baseManaRegen: 6
   health: {fileID: 0}
 --- !u!70 &698469657
 CapsuleCollider2D:
@@ -740,6 +743,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 100
   invincibilityDuration: 0.5
+--- !u!114 &698469661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698469652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f02462f8af539024680a93ebd0dd5b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVisual
+  sprite: {fileID: 0}
+  debugLog: 0
 --- !u!1 &1702592719
 GameObject:
   m_ObjectHideFlags: 0
@@ -1066,6 +1083,9 @@ GameObject:
   - component: {fileID: 1728500179}
   - component: {fileID: 1728500178}
   - component: {fileID: 1728500177}
+  - component: {fileID: 1728500183}
+  - component: {fileID: 1728500182}
+  - component: {fileID: 1728500181}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1205,7 +1225,7 @@ Transform:
   m_GameObject: {fileID: 1728500170}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.03, y: -0.03, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1263,8 +1283,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeAttacker
   attackData: {fileID: 11400000, guid: 81665de188428a647a82c3ac324505a3, type: 2}
-  alwaysShowHitbox: 0
-  debugFlashDuration: 0.15
+  debugShowHitbox: 1
+  debugShowDuration: 0.15
 --- !u!114 &1728500178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1307,7 +1327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab70cb62ae7c99a40b054fd18249ce07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  classData: {fileID: 11400000, guid: b5fc4f381e18e3d4a9f3535e0119b2be, type: 2}
+  classData: {fileID: 11400000, guid: 3d950d16934b05644ba9f817abe4af69, type: 2}
   baseMaxHealth: 100
   baseAttack: 10
   baseMoveSpeed: 8
@@ -1316,7 +1336,57 @@ MonoBehaviour:
   baseCritMultiplier: 1.5
   baseDefense: 0
   baseCooldownRate: 0
+  baseMaxMana: 100
+  baseManaRegen: 6
   health: {fileID: 0}
+--- !u!114 &1728500181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728500170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 529e7de8c2431eb498f4f2a5d7e0d041, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkillCaster
+  startingSkills: []
+  input: {fileID: 0}
+  mana: {fileID: 0}
+  attacker: {fileID: 0}
+  hitReaction: {fileID: 0}
+  logFailures: 1
+--- !u!114 &1728500182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728500170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f02462f8af539024680a93ebd0dd5b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVisual
+  sprite: {fileID: 0}
+  debugLog: 0
+--- !u!114 &1728500183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728500170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48d3a366905563b4e86fe03fb9adcece, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManaPool
+  baseMaxMana: 100
+  baseRegen: 6
+  regenDelay: 0.6
+  regenScale: 1
 --- !u!1 &1888230194
 GameObject:
   m_ObjectHideFlags: 0

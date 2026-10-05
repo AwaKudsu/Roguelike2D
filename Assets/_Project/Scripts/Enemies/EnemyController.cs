@@ -37,6 +37,7 @@ public class EnemyController : MonoBehaviour
     private Health _health;
     private HitReaction _hitReaction;
     private Transform _target;
+    private CharacterVisual _visual;
     private float _attackCooldownTimer;
     private int _facing = 1;
 
@@ -46,6 +47,7 @@ public class EnemyController : MonoBehaviour
         _stats       = GetComponent<CharacterStats>();
         _health      = GetComponent<Health>();
         _hitReaction = GetComponent<HitReaction>();
+        _visual      = GetComponent<CharacterVisual>();
     }
 
     private void OnEnable()  => _health.Died += OnDied;
@@ -81,6 +83,9 @@ public class EnemyController : MonoBehaviour
 
         int dir = _target.position.x > transform.position.x ? 1 : -1;
         _facing = dir;
+
+        // 贴图朝向跟着走，免得「倒着走」的敌人看着像在前进
+        if (_visual != null) _visual.SetFacing(dir);
 
         if (distance <= attackRange) Attack();
         else                         Chase(dir);
