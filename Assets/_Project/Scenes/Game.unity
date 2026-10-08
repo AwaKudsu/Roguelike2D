@@ -1282,7 +1282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4ab5ccb08d71644482bb486044e8143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeAttacker
-  attackData: {fileID: 11400000, guid: 81665de188428a647a82c3ac324505a3, type: 2}
+  attackData: {fileID: 11400000, guid: a91ae24e2c5412c429b0267716cecf23, type: 2}
   debugShowHitbox: 1
   debugShowDuration: 0.15
 --- !u!114 &1728500178
@@ -1327,7 +1327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab70cb62ae7c99a40b054fd18249ce07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  classData: {fileID: 11400000, guid: 3d950d16934b05644ba9f817abe4af69, type: 2}
+  classData: {fileID: 11400000, guid: b5fc4f381e18e3d4a9f3535e0119b2be, type: 2}
   baseMaxHealth: 100
   baseAttack: 10
   baseMoveSpeed: 8
